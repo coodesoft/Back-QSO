@@ -24,6 +24,22 @@ class SiteController extends Controller{
      */
     public function behaviors(){
         return [
+            'corsFilter' => [
+                'class' => \yii\filters\Cors::className(),
+                  'cors' => [
+                // restrict access to
+                'Access-Control-Allow-Origin' => ['*'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+                // Allow only POST and PUT methods
+                'Access-Control-Request-Headers' => ['*'],
+                // Allow only headers 'X-Wsse'
+                'Access-Control-Allow-Credentials' => true,
+                // Allow OPTIONS caching
+                'Access-Control-Max-Age' => 86400,
+                // Allow the X-Pagination-Current-Page header to be exposed to the browser.
+                'Access-Control-Expose-Headers' => [],
+              ]
+            ],
             'access' => [
                 'class' => AccessControl::className(),
                 'only' => ['logout'],
