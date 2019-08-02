@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use yii\filters\AccessControl;
+use yii\filters\Cors;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
@@ -24,21 +25,17 @@ class SiteController extends Controller{
      */
     public function behaviors(){
         return [
-            'corsFilter' => [
+            'corsFilter'  => [
                 'class' => \yii\filters\Cors::className(),
-                  'cors' => [
-                // restrict access to
-                'Access-Control-Allow-Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                // Allow only POST and PUT methods
-                'Access-Control-Request-Headers' => ['*'],
-                // Allow only headers 'X-Wsse'
-                'Access-Control-Allow-Credentials' => true,
-                // Allow OPTIONS caching
-                'Access-Control-Max-Age' => 86400,
-                // Allow the X-Pagination-Current-Page header to be exposed to the browser.
-                'Access-Control-Expose-Headers' => [],
-              ]
+                'cors'  => [
+                    //restrict access to domains:
+                   'Origin'                           => ['*'],
+                   'Access-Control-Request-Method'    => ['POST'],
+                   'Access-Control-Allow-Credentials' => false,
+                   'Access-Control-Max-Age'           => 3600,          
+                   'Access-Control-Allow-Headers'     => ['content-type'],
+                   //'Access-Control-Expose-Headers'    => [],
+                ],
             ],
             'access' => [
                 'class' => AccessControl::className(),
@@ -104,7 +101,7 @@ class SiteController extends Controller{
     }
     
     public function actionAdd(){
-
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         if (Yii::$app->request->isPost){
             
             $token = Yii::$app->request->get('token');
@@ -112,10 +109,10 @@ class SiteController extends Controller{
             
             $hash = md5($this->privatePass . $timestamp);
             if ($hash !== $token){
-                return Json::encode([
+                return [
                     'status' => 'failure',
                     'message' => 'Se produjo un error de autenticación. El token es inválido',
-                ]);
+                ];
             }
             
             $params = Json::decode(Yii::$app->request->rawBody);
@@ -136,24 +133,24 @@ class SiteController extends Controller{
                 $player->mail = $mail;
                 
                 if (!$player->save()) {
-                    return Json::encode([
+                    return [
                         'status' => 'error',
                         'message' => 'Se produjo un error al guardar el jugador',
-                    ]);
+                    ];
                 } else{
-                    return Json::encode([
+                    return [
                         'status' => 'success',
                         'message' => 'Se guardó exitosamente el jugador',
-                    ]);
+                    ];
                     
                 }
             }
             
         } else
-            return Json::encode([
+            return [
                     'status' => 'failure',
                     'message' => 'Se produjo un error de petición. El verbo es inválido',
-                ]);
+                ];
     }
 
     public function actionLogout(){
